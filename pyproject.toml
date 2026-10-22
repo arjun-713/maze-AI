@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "maze-ai-game"
+version = "0.1.0"
+description = "A 35-level procedural maze game with a reusable headless simulation engine."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+pygame = ["pygame-ce>=2.5"]
+
+[project.scripts]
+maze-game = "maze_game.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["maze_game*"]
+
+[tool.setuptools.package-data]
+maze_game = ["assets/fonts/*"]

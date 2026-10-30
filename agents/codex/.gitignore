@@ -1,0 +1,7 @@
+artifacts/
+*.pt
+*.pt.tmp
+*.sqlite3
+*.sqlite3-*
+*.jsonl
+__pycache__/

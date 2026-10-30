@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mazemind-codex-contestant"
+version = "1.0.0"
+description = "Dormant, independently trainable memory-augmented recurrent PPO maze contestant"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.26,<3", "torch>=2.6,<3"]
+
+[project.scripts]
+codex-maze = "agents.codex.__main__:main"
+
+[tool.setuptools]
+packages = ["agents.codex"]
+
+[tool.setuptools.package-dir]
+"agents.codex" = "."
+
+[tool.setuptools.package-data]
+"agents.codex" = ["configs/*.json", "requirements.txt", "RESEARCH.md", "STATIC_REVIEW.md"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"

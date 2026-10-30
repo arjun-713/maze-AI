@@ -2,6 +2,18 @@
 
 A standalone Pygame maze game with a UI-independent simulation engine. The curriculum has 35 levels with generation grids of 9, 13, 17, 21, 27, 33, and 41 cells per side. Layouts are generated from a seed with randomized depth-first search or randomized Prim, then braided with extra passages. Candidates are accepted only after meeting that tier's shortest-path, intersection, and dead-end thresholds. The engine compiles each layout into a `(2n + 1)` block grid, including the floor squares between generated cells. Every visible floor square is a real movement position, so one action moves exactly one wall-block width.
 
+## macOS quick start (Apple Silicon)
+
+From the complete checkout, with native Python 3.12 installed:
+
+```sh
+python3.12 run.py setup --codex
+.venv/bin/python run.py doctor
+.venv/bin/python run.py studio
+```
+
+Use `.venv/bin/python run.py game` for manual play. Finder launchers are included: **Setup macOS.command**, **Training Studio.command**, and **Play Maze.command**. See [MACOS.md](MACOS.md) for Python installation, moving recordings from Linux, and optional Apple GPU support. Setup installs dependencies without starting or activating any AI.
+
 ## Install and play
 
 Python 3.10 or newer is required. Install the desktop dependency and launch the game:
@@ -61,19 +73,19 @@ python -m maze_game --dashboard --level 1 --seed 42 --episodes 100
 
 The manual game also has a **Training Studio** button and a T shortcut to open the studio with the current level and seed.
 
-Choose **Start demo** to run a uniformly random agent. It chooses among all four actions, including walls; it does not learn and does not need a trained model. **Pause/Resume** or Space freezes and resumes the simulation. The speed controls select actions per second. Level, episode budget, and run seed changes take effect when **New run** is selected.
+The default agent is the unfinished **Redbull** scaffold in `Redbull/agent.py`. The studio stays **Not ready** until you implement it and set its `ready` flag. Once ready, choose **Start agent** to run your code. **Pause/Resume** or Space freezes and resumes the simulation. The speed controls select actions per second. Level, episode budget, and run seed changes take effect when **New run** is selected.
 
 - **Game** shows the bunny moving one block per agent action, discovered cells, the teal route, recent actions, traps, and red crosses at wall collisions. **Full map** is an administrator inspection view; it does not change what the agent receives.
-- **Learning** shows the exact 5 x 5 observation used for the selected action, its reward, and optional agent debug information. The demo exposes uniform action probabilities. Q-values, predicted action values, and other JSON debug data are optional, with no requirement that agents have identical internals. Debug text scrolls with the mouse wheel.
+- **Learning** shows the exact 5 x 5 observation used for the selected action, its reward, and optional agent debug information. Q-values, predicted action values, and other JSON debug data are optional, with no requirement that agents have identical internals. Debug text scrolls with the mouse wheel.
 - **Dashboard** plots episode returns, rolling success over the last 20 completed episodes, moves, and active episode duration. It also shows successful completion time, trap entries, wall collisions, and episode counts. Unfinished partial episodes are excluded from aggregate metrics. A missing successful completion time is shown as `--`, not invented.
 
 Use 1, 2, and 3 to switch views. Select a saved run from the left rail to inspect it. **Compare** cycles through other saved runs and overlays their curves; selecting `none` clears comparison. Click an episode row to pause the current run and open its replay. The replay supports play/pause, single stepping, a seek slider, and **Return live**. Returning live leaves the current run paused until resumed.
 
 Runs are saved in `.maze-runs/training.sqlite3`, including configurations, episode seeds, actions, rewards, collision flags, timing, and optional debug snapshots. Completed episodes and paused partial episodes can be replayed after restarting the studio. Replay uses recorded actions and verifies every outcome against the environment; it never invokes the agent again. The desktop studio supports window sizes of 1100 x 760 and larger. Movement animation remains always enabled.
 
-Times measure active wall-clock time, excluding pauses. They vary with simulation speed; moves and rewards are independent of playback/rendering speed. Replays display recorded times. The initial agent is random, so low success rates and non-improving reward curves are expected.
+Times measure active wall-clock time, excluding pauses. They vary with simulation speed; moves and rewards are independent of playback/rendering speed. Replays display recorded times. No trained agent is shipped. The independent Codex contestant under `agents/codex/` remains disabled by its own `READY = False` switch; see its README for the complete handoff.
 
-The runner also works without importing Pygame:
+After implementing your agent, the runner also works without importing Pygame:
 
 ```sh
 python -m maze_game --train-headless --level 1 --seed 42 --episodes 100
@@ -85,7 +97,14 @@ The programmatic agent boundary is `act(observation) -> AgentDecision(action, de
 
 ## Tests
 
-Run the acceptance suite with the standard library:
+The launcher can be checked without executing agents or mazes:
+
+```sh
+python -m unittest discover -s tests -p test_portability.py -v
+python agents/codex/static_check.py
+```
+
+The full acceptance suite below generates and solves mazes. Run it only when such verification is authorized; it was not run for the dormant contestant delivery. It uses the standard library:
 
 ```sh
 python -m unittest discover -s tests -v
@@ -101,7 +120,7 @@ The generator, scoring, observation, and headless tests need no third-party pack
 - `maze_game/ui.py` — Pygame rendering and manual controls.
 - `maze_game/_art.py` — authored bunny, troublemaker, home, flag, and block artwork.
 - `maze_game/__main__.py` — desktop launcher and headless JSON-lines adapter.
-- `maze_game/training.py` — demo agent, recording runner, SQLite storage, metrics, and verified replay.
+- `maze_game/training.py` — agent interface/loader, recording runner, SQLite storage, metrics, and verified replay.
 - `maze_game/training_ui.py` — Game, Learning, and Dashboard views with run and replay controls.
 - `tests/test_maze_game.py` — procedural-generation, engine, headless, and optional Pygame acceptance checks.
 - `tests/test_training.py` — run budgets, pause/resume, privacy, debug data, persistence, replay, comparisons, and studio integration.

@@ -1,0 +1,11 @@
+{
+  "device": "cuda",
+  "threads": 4,
+  "total_steps": 10000000,
+  "num_envs": 16,
+  "rollout_steps": 256,
+  "sequence_length": 32,
+  "burn_in": 16,
+  "sequences_per_batch": 16,
+  "epochs": 4
+}

@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from ._art import SpriteAtlas
+from ._window import initial_size
 from .engine import LEVEL_COUNT, MazeEnv
 
 BG = (245, 244, 237)
@@ -29,7 +30,7 @@ class MazeGame:
         self.pg = pygame
         pygame.init()
         pygame.display.set_caption("Bunny Maze")
-        self.screen = pygame.display.set_mode((1380, 880), pygame.RESIZABLE)
+        self.screen = pygame.display.set_mode(initial_size(pygame, (1380, 880), (900, 680)), pygame.RESIZABLE)
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(str(FONTS / "Nunito-Medium.ttf"), 16)
         self.small = pygame.font.Font(str(FONTS / "Nunito-Medium.ttf"), 14)

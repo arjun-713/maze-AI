@@ -10,6 +10,7 @@ import time
 from typing import Any, Callable
 
 from ._generator import DELTAS
+from ._window import initial_size
 from .training import Agent, EpisodeReplay, RunConfig, RunStore, TrainingSession, aggregate, load_agent
 from .ui import ACCENT, BG, BLUE, DIVIDER, GOLD, MUTED, PANEL, RED, SOFT, TEAL, TEXT, MazeGame
 
@@ -21,7 +22,7 @@ class TrainingStudio(MazeGame):
                  runs_dir: str | Path = ".maze-runs", agent_spec: str = "Redbull.agent:Redbull",
                  agent_factory: Callable[[int], Agent] | None = None) -> None:
         super().__init__(pygame)
-        self.screen = pygame.display.set_mode((1560, 980), pygame.RESIZABLE)
+        self.screen = pygame.display.set_mode(initial_size(pygame, (1560, 980), (1100, 760)), pygame.RESIZABLE)
         pygame.display.set_caption("Bunny Maze / Training Studio")
         self.store = RunStore(Path(runs_dir) / "training.sqlite3")
         self.agent_factory = agent_factory or (lambda run_seed: load_agent(agent_spec, run_seed))

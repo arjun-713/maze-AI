@@ -1,0 +1,11 @@
+{
+  "device": "cpu",
+  "threads": 2,
+  "total_steps": 5000000,
+  "num_envs": 8,
+  "rollout_steps": 256,
+  "sequence_length": 32,
+  "burn_in": 16,
+  "sequences_per_batch": 8,
+  "epochs": 4
+}

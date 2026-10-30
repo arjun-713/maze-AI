@@ -307,6 +307,7 @@ class MazeGame:
         self._button("fit", "Follow bunny" if self.fit_map else "Fit map", self.pg.Rect(vp.x + 10, toolbar_y, 108, 31))
         self._button("zoom_out", "-", self.pg.Rect(vp.x + 126, toolbar_y, 31, 31))
         self._button("zoom_in", "+", self.pg.Rect(vp.x + 164, toolbar_y, 31, 31))
+        self._button("training", "Training Studio", self.pg.Rect(vp.right - 150, toolbar_y, 140, 31))
         if not vp.collidepoint(center) and vp.width >= 550:
             row, col = self.env.position
             goal_row, goal_col = self.env._maze.goal
@@ -445,6 +446,9 @@ class MazeGame:
                 self._reset(level=self.level + 1)
             elif key == "fit":
                 self._toggle_map()
+            elif key == "training":
+                self._next_mode = "training"
+                self.running = False
             elif key in ("zoom_in", "zoom_out"):
                 self._zoom(4 if key == "zoom_in" else -4)
             return
@@ -476,6 +480,9 @@ class MazeGame:
             self._reset()
         elif event.key == pg.K_m:
             self._toggle_map()
+        elif event.key == pg.K_t:
+            self._next_mode = "training"
+            self.running = False
         elif event.key in (pg.K_EQUALS, pg.K_PLUS, pg.K_KP_PLUS):
             self._zoom(4)
         elif event.key in (pg.K_MINUS, pg.K_KP_MINUS):
@@ -529,4 +536,9 @@ def launch() -> None:
         import pygame
     except ImportError as exc:
         raise SystemExit("Install the desktop dependency with: python -m pip install -e '.[pygame]'") from exc
-    MazeGame(pygame).run()
+    game = MazeGame(pygame)
+    game.run()
+    if getattr(game, "_next_mode", None) == "training":
+        from .training_ui import launch_dashboard
+
+        launch_dashboard(level=game.level, seed=game.seed)

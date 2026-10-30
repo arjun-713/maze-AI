@@ -51,6 +51,38 @@ The process prints one JSON observation, then accepts one action per input line 
 
 For an untrusted competition agent, run the environment as a separate process and pass only these JSON observations and actions across the pipe. Do not give agent code the `MazeEnv` Python object: its implementation contains trusted game state and the scoring solver, while the JSON protocol omits the full map, seed, and optimal route.
 
+## Phase 2: Training Studio
+
+Launch the three-view desktop studio with the same Pygame extra:
+
+```sh
+python -m maze_game --dashboard --level 1 --seed 42 --episodes 100
+```
+
+The manual game also has a **Training Studio** button and a T shortcut to open the studio with the current level and seed.
+
+Choose **Start demo** to run a uniformly random agent. It chooses among all four actions, including walls; it does not learn and does not need a trained model. **Pause/Resume** or Space freezes and resumes the simulation. The speed controls select actions per second. Level, episode budget, and run seed changes take effect when **New run** is selected.
+
+- **Game** shows the bunny moving one block per agent action, discovered cells, the teal route, recent actions, traps, and red crosses at wall collisions. **Full map** is an administrator inspection view; it does not change what the agent receives.
+- **Learning** shows the exact 5 x 5 observation used for the selected action, its reward, and optional agent debug information. The demo exposes uniform action probabilities. Q-values, predicted action values, and other JSON debug data are optional, with no requirement that agents have identical internals. Debug text scrolls with the mouse wheel.
+- **Dashboard** plots episode returns, rolling success over the last 20 completed episodes, moves, and active episode duration. It also shows successful completion time, trap entries, wall collisions, and episode counts. Unfinished partial episodes are excluded from aggregate metrics. A missing successful completion time is shown as `--`, not invented.
+
+Use 1, 2, and 3 to switch views. Select a saved run from the left rail to inspect it. **Compare** cycles through other saved runs and overlays their curves; selecting `none` clears comparison. Click an episode row to pause the current run and open its replay. The replay supports play/pause, single stepping, a seek slider, and **Return live**. Returning live leaves the current run paused until resumed.
+
+Runs are saved in `.maze-runs/training.sqlite3`, including configurations, episode seeds, actions, rewards, collision flags, timing, and optional debug snapshots. Completed episodes and paused partial episodes can be replayed after restarting the studio. Replay uses recorded actions and verifies every outcome against the environment; it never invokes the agent again. The desktop studio supports window sizes of 1100 x 760 and larger. Movement animation remains always enabled.
+
+Times measure active wall-clock time, excluding pauses. They vary with simulation speed; moves and rewards are independent of playback/rendering speed. Replays display recorded times. The initial agent is random, so low success rates and non-improving reward curves are expected.
+
+The runner also works without importing Pygame:
+
+```sh
+python -m maze_game --train-headless --level 1 --seed 42 --episodes 100
+```
+
+Use `--runs-dir PATH` in either mode to select a different recording directory. The headless command saves the same run format and prints a JSON summary that can be reviewed in the studio by using the same directory.
+
+The programmatic agent boundary is `act(observation) -> AgentDecision(action, debug={})`. `TrainingSession` accepts an agent with a `name` and this method. Optional `on_episode_start(observation)` and `on_transition(Transition)` hooks support future learning integrations. Agents receive copied public observations and public transition feedback; the game engine has no dependency on an agent or the studio. The recorder requires debug values to be JSON-serializable and finite. No model, Q-learning implementation, or neural training is introduced in this phase.
+
 ## Tests
 
 Run the acceptance suite with the standard library:
@@ -69,6 +101,9 @@ The generator, scoring, observation, and headless tests need no third-party pack
 - `maze_game/ui.py` — Pygame rendering and manual controls.
 - `maze_game/_art.py` — authored bunny, troublemaker, home, flag, and block artwork.
 - `maze_game/__main__.py` — desktop launcher and headless JSON-lines adapter.
+- `maze_game/training.py` — demo agent, recording runner, SQLite storage, metrics, and verified replay.
+- `maze_game/training_ui.py` — Game, Learning, and Dashboard views with run and replay controls.
 - `tests/test_maze_game.py` — procedural-generation, engine, headless, and optional Pygame acceptance checks.
+- `tests/test_training.py` — run budgets, pause/resume, privacy, debug data, persistence, replay, comparisons, and studio integration.
 - `DESIGN.md` — visual tokens and camera behavior for the toy-board interface.
 - `maze_game/assets/fonts/` — bundled Fredoka and Nunito fonts and their Open Font Licenses.

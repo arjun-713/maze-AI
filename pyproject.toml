@@ -17,7 +17,7 @@ pygame = ["pygame-ce>=2.5"]
 maze-game = "maze_game.__main__:main"
 
 [tool.setuptools.packages.find]
-include = ["maze_game*"]
+include = ["maze_game*", "Redbull*"]
 
 [tool.setuptools.package-data]
 maze_game = ["assets/fonts/*"]
